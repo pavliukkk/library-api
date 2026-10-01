@@ -9,7 +9,7 @@ class BookViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
 
 
-class BookViewSet(viewsets.ModelViewSet):
+class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.IsAdminUser]

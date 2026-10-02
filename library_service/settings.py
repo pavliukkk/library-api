@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "book",
     "user",
+    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,9 @@ MAILERS = {
 }
 
 AUTH_USER_MODEL = "user.User"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ]
+}

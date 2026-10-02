@@ -17,13 +17,11 @@ def detail_url(url, obj_id):
 class BaseViewSetTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="testuser",
             email="user@test.com",
             password="testpass123",
         )
 
         self.admin = User.objects.create_superuser(
-            username="admin",
             email="admin@test.com",
             password="testpass123",
         )

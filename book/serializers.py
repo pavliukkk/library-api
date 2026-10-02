@@ -9,15 +9,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         fields = ["first_name", "last_name"]
 
 
-
 class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
-        fields = [
-            "id",
-            "title",
-            "author",
-            "cover",
-            "inventory",
-            "daily_fee"
-        ]
+        fields = ["id", "title", "author", "cover", "inventory", "daily_fee"]

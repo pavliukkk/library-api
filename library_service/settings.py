@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/6.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
+
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -136,11 +137,12 @@ AUTH_USER_MODEL = "user.User"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ]
+    ],
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     "ROTATE_REFRESH_TOKENS": True,
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZE",
 }

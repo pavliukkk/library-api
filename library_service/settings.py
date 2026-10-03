@@ -56,6 +56,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
+
 ROOT_URLCONF = "library_service.urls"
 
 TEMPLATES = [
@@ -146,3 +150,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZE",
 }
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

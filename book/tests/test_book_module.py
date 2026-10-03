@@ -183,6 +183,51 @@ class BookViewSetTests(BaseViewSetTest):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_anonymous_user_cannot_post_book(self):
+        response = self.client.post(
+            BOOK_URL,
+            {
+                "title": "test_title",
+                "cover": "HARD",
+                "inventory": 5,
+                "daily_fee": 2.00,
+                "author": self.author.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_anonymous_user_cannot_put_book(self):
+        response = self.client.put(
+            detail_url(BOOK_URL, self.book.id),
+            {
+                "title": "test_title",
+                "cover": "HARD",
+                "inventory": 5,
+                "daily_fee": 2.00,
+                "author": self.author.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_anonymous_user_cannot_patch_book(self):
+        response = self.client.patch(
+            detail_url(BOOK_URL, self.book.id),
+            {
+                "title": "test_title222",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_anonymous_user_cannot_delete_book(self):
+        response = self.client.delete(
+            detail_url(BOOK_URL, self.book.id),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
     def test_authenticated_user_can_list_books(self):
         self.authenticate_user()
 
@@ -198,3 +243,125 @@ class BookViewSetTests(BaseViewSetTest):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_authenticated_user_cannot_post_book(self):
+        self.authenticate_user()
+
+        response = self.client.post(
+            BOOK_URL,
+            {
+                "title": "test_title",
+                "cover": "HARD",
+                "inventory": 5,
+                "daily_fee": 2.00,
+                "author": self.author.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authenticated_user_cannot_put_book(self):
+        self.authenticate_user()
+
+        response = self.client.put(
+            detail_url(BOOK_URL, self.book.id),
+            {
+                "title": "test_title",
+                "cover": "HARD",
+                "inventory": 5,
+                "daily_fee": 2.00,
+                "author": self.author.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authenticated_user_cannot_patch_book(self):
+        self.authenticate_user()
+
+        response = self.client.patch(
+            detail_url(BOOK_URL, self.book.id),
+            {
+                "title": "test_title222",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_authenticated_user_cannot_delete_book(self):
+        self.authenticate_user()
+
+        response = self.client.delete(
+            detail_url(BOOK_URL, self.book.id),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_admin_user_can_list_books(self):
+        self.authenticate_admin()
+
+        response = self.client.get(BOOK_URL)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_user_can_retrieve_book(self):
+        self.authenticate_admin()
+
+        response = self.client.get(
+            detail_url(BOOK_URL, self.book.id)
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_user_can_post_book(self):
+        self.authenticate_admin()
+
+        response = self.client.post(
+            BOOK_URL,
+            {
+                "title": "test_title",
+                "cover": "HARD",
+                "inventory": 5,
+                "daily_fee": 2.00,
+                "author": self.author.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_admin_user_can_put_book(self):
+        self.authenticate_admin()
+
+        response = self.client.put(
+            detail_url(BOOK_URL, self.book.id),
+            {
+                "title": "test_title",
+                "cover": "HARD",
+                "inventory": 5,
+                "daily_fee": 2.00,
+                "author": self.author.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_user_can_patch_book(self):
+        self.authenticate_admin()
+
+        response = self.client.patch(
+            detail_url(BOOK_URL, self.book.id),
+            {
+                "title": "test_title222",
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_user_can_delete_book(self):
+        self.authenticate_admin()
+
+        response = self.client.delete(
+            detail_url(BOOK_URL, self.book.id),
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

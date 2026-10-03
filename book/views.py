@@ -3,13 +3,20 @@ from rest_framework.permissions import IsAdminUser
 
 from book.models import Book, Author
 from book.permissions import IsAdminOrReadOnly
-from book.serializers import BookSerializer, AuthorSerializer
+from book.serializers import BookSerializer, AuthorSerializer, BookListSerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.select_related()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminOrReadOnly, ]
+    permission_classes = [
+        IsAdminOrReadOnly,
+    ]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return BookListSerializer
+        return BookSerializer
 
 
 class AuthorViewSet(viewsets.ModelViewSet):

@@ -69,7 +69,12 @@ class AuthorViewSetTests(BaseViewSetTest):
             detail_url(AUTHOR_URL, self.author.id),
         )
 
+        response_patch = self.client.patch(
+            detail_url(AUTHOR_URL, self.author.id),
+        )
+
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response_patch.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_anonymous_user_cannot_delete_author(self):
         response = self.client.delete(
@@ -105,7 +110,12 @@ class AuthorViewSetTests(BaseViewSetTest):
             detail_url(AUTHOR_URL, self.author.id),
         )
 
+        response_patch = self.client.patch(
+            detail_url(AUTHOR_URL, self.author.id),
+        )
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response_patch.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_authenticated_user_cannot_delete_author(self):
         self.authenticate_user()
@@ -147,7 +157,16 @@ class AuthorViewSetTests(BaseViewSetTest):
             },
         )
 
+        response_patch = self.client.put(
+            detail_url(AUTHOR_URL, self.author.id),
+            {
+                "first_name": "test_first_name_2",
+                "last_name": "test_last_name_2",
+            },
+        )
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response_patch.status_code, status.HTTP_200_OK)
 
     def test_admin_can_delete_author(self):
         self.authenticate_admin()

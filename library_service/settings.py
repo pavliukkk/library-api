@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "book",
     "user",
     "rest_framework_simplejwt",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,10 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "library_service.urls"
 

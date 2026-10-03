@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     "book",
     "user",
     "rest_framework_simplejwt",
-    "debug_toolbar",
 ]
 
 MIDDLEWARE = [

@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from book.models import Author, Book
 
@@ -17,15 +18,17 @@ def detail_url(url, obj_id):
 class BaseViewSetTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="testuser",
             email="user@test.com",
             password="testpass123",
+            first_name="test_first_name",
+            last_name="test_last_name",
         )
 
         self.admin = User.objects.create_superuser(
-            username="admin",
             email="admin@test.com",
             password="testpass123",
+            first_name="admin_first_name",
+            last_name="admin_last_name",
         )
 
         self.author = Author.objects.create(
@@ -34,17 +37,21 @@ class BaseViewSetTest(APITestCase):
         )
 
     def authenticate_user(self):
-        self.client.force_authenticate(user=self.user)
+        refresh = RefreshToken.for_user(self.user)
+
+        self.client.credentials(HTTP_AUTHORIZE=f"Bearer {refresh.access_token}")
 
     def authenticate_admin(self):
-        self.client.force_authenticate(user=self.admin)
+        refresh = RefreshToken.for_user(self.admin)
+
+        self.client.credentials(HTTP_AUTHORIZE=f"Bearer {refresh.access_token}")
 
 
 class AuthorViewSetTests(BaseViewSetTest):
     def test_anonymous_user_cannot_list_authors(self):
         response = self.client.get(AUTHOR_URL)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_anonymous_user_cannot_create_author(self):
         response = self.client.post(
@@ -55,21 +62,21 @@ class AuthorViewSetTests(BaseViewSetTest):
             },
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_anonymous_user_cannot_update_author(self):
         response = self.client.put(
             detail_url(AUTHOR_URL, self.author.id),
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_anonymous_user_cannot_delete_author(self):
         response = self.client.delete(
             detail_url(AUTHOR_URL, self.author.id),
         )
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_authenticated_user_cannot_list_authors(self):
         self.authenticate_user()

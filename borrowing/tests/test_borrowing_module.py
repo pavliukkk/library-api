@@ -66,38 +66,38 @@ class BaseViewSetTest(APITestCase):
 
 
 class BorrowingViewSetTests(BaseViewSetTest):
-    def test_anonymous_user_can_list_authors(self):
+    def test_anonymous_user_can_list_borrowings(self):
         response = self.client.get(BORROWING_URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_anonymous_user_can_retrieve_authors(self):
+    def test_anonymous_user_can_retrieve_borrowings(self):
         response = self.client.get(detail_url(BORROWING_URL, self.borrowing.id))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_authenticated_user_can_list_authors(self):
+    def test_authenticated_user_can_list_borrowings(self):
         self.authenticate_user()
 
         response = self.client.get(BORROWING_URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_authenticated_user_can_retrieve_authors(self):
+    def test_authenticated_user_can_retrieve_borrowings(self):
         self.authenticate_user()
 
         response = self.client.get(detail_url(BORROWING_URL, self.borrowing.id))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_admin_can_list_authors(self):
+    def test_admin_can_list_borrowings(self):
         self.authenticate_admin()
 
         response = self.client.get(BORROWING_URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_admin_user_can_retrieve_authors(self):
+    def test_admin_user_can_retrieve_borrowings(self):
         self.authenticate_admin()
 
         response = self.client.get(detail_url(BORROWING_URL, self.borrowing.id))

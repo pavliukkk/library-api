@@ -15,13 +15,14 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "expected_return_date",
             "actual_return_date",
             "book",
-            "user"
+            "user",
         ]
 
 
 class BorrowingListSerializer(BorrowingSerializer):
     book = serializers.SerializerMethodField()
     user = serializers.SerializerMethodField()
+
     class Meta:
         model = Borrowing
         fields = [
@@ -30,7 +31,7 @@ class BorrowingListSerializer(BorrowingSerializer):
             "expected_return_date",
             "actual_return_date",
             "book",
-            "user"
+            "user",
         ]
 
     def get_user(self, obj):
@@ -42,3 +43,17 @@ class BorrowingListSerializer(BorrowingSerializer):
             "author": obj.book.author.full_name,
             "daily_fee": obj.book.daily_fee,
         }
+
+class BorrowingDetailSerializer(serializers.ModelSerializer):
+    book = BookListSerializer()
+    user = UserSerializer()
+    class Meta:
+        model = Borrowing
+        fields = [
+            "id",
+            "borrow_date",
+            "expected_return_date",
+            "actual_return_date",
+            "book",
+            "user",
+        ]

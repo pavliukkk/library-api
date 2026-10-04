@@ -44,9 +44,11 @@ class BorrowingListSerializer(BorrowingSerializer):
             "daily_fee": obj.book.daily_fee,
         }
 
+
 class BorrowingDetailSerializer(serializers.ModelSerializer):
     book = BookListSerializer()
     user = UserSerializer()
+
     class Meta:
         model = Borrowing
         fields = [

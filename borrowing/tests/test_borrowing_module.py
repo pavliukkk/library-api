@@ -66,40 +66,83 @@ class BaseViewSetTest(APITestCase):
 
 
 class BorrowingViewSetTests(BaseViewSetTest):
-    def test_anonymous_user_can_list_authors(self):
+    def test_anonymous_user_can_list_borrowings(self):
         response = self.client.get(BORROWING_URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_anonymous_user_can_retrieve_authors(self):
+    def test_anonymous_user_can_retrieve_borrowings(self):
         response = self.client.get(detail_url(BORROWING_URL, self.borrowing.id))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_authenticated_user_can_list_authors(self):
+    def test_anonymous_user_cannot_create_borrowings(self):
+        response = self.client.post(
+            BORROWING_URL,
+            {
+                "borrow_date": datetime.date.today(),
+                "expected_return_date": datetime.date.today()
+                + datetime.timedelta(days=1),
+                "book": self.book,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_user_can_list_borrowings(self):
         self.authenticate_user()
 
         response = self.client.get(BORROWING_URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_authenticated_user_can_retrieve_authors(self):
+    def test_authenticated_user_can_retrieve_borrowings(self):
         self.authenticate_user()
 
         response = self.client.get(detail_url(BORROWING_URL, self.borrowing.id))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_admin_can_list_authors(self):
+    def test_authenticated_user_can_create_borrowings(self):
+        self.authenticate_user()
+
+        response = self.client.post(
+            BORROWING_URL,
+            {
+                "borrow_date": datetime.date.today(),
+                "expected_return_date": datetime.date.today()
+                + datetime.timedelta(days=1),
+                "book": self.book.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_admin_can_list_borrowings(self):
         self.authenticate_admin()
 
         response = self.client.get(BORROWING_URL)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_admin_user_can_retrieve_authors(self):
+    def test_admin_user_can_retrieve_borrowings(self):
         self.authenticate_admin()
 
         response = self.client.get(detail_url(BORROWING_URL, self.borrowing.id))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_user_can_create_borrowings(self):
+        self.authenticate_admin()
+
+        response = self.client.post(
+            BORROWING_URL,
+            {
+                "borrow_date": datetime.date.today(),
+                "expected_return_date": datetime.date.today()
+                + datetime.timedelta(days=1),
+                "book": self.book.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

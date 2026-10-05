@@ -16,6 +16,9 @@ BORROWING_URL = "/api/borrowings/borrowings/"
 def detail_url(url, obj_id):
     return f"{url}{obj_id}/"
 
+def return_url(borrowing_id):
+    return f"{BORROWING_URL}{borrowing_id}/return/"
+
 
 class BaseViewSetTest(APITestCase):
     def setUp(self):
@@ -146,3 +149,132 @@ class BorrowingViewSetTests(BaseViewSetTest):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_anonymous_user_cannot_return_borrowing(self):
+        borrowing = Borrowing.objects.create(
+            user=self.user,
+            book=self.book,
+            borrow_date=datetime.date.today(),
+            expected_return_date=datetime.date.today()
+            + datetime.timedelta(days=1),
+        )
+
+        response = self.client.post(return_url(borrowing.id))
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_user_can_create_borrowing(self):
+        self.authenticate_user()
+
+        response = self.client.post(
+            BORROWING_URL,
+            {
+                "borrow_date": datetime.date.today(),
+                "expected_return_date": datetime.date.today()
+                + datetime.timedelta(days=1),
+                "book": self.book.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        borrowing = Borrowing.objects.get(id=response.data["id"])
+
+        self.assertEqual(borrowing.user, self.user)
+        self.assertEqual(borrowing.book, self.book)
+
+    def test_inventory_decreases_when_borrowing_is_created(self):
+        self.authenticate_user()
+
+        initial_inventory = self.book.inventory
+
+        response = self.client.post(
+            BORROWING_URL,
+            {
+                "borrow_date": datetime.date.today(),
+                "expected_return_date": datetime.date.today()
+                + datetime.timedelta(days=1),
+                "book": self.book.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.book.refresh_from_db()
+
+        self.assertEqual(
+            self.book.inventory,
+            initial_inventory - 1,
+        )
+
+    def test_cannot_create_borrowing_when_book_inventory_is_zero(self):
+        self.authenticate_user()
+
+        self.book.inventory = 0
+        self.book.save(update_fields=["inventory"])
+
+        response = self.client.post(
+            BORROWING_URL,
+            {
+                "borrow_date": datetime.date.today(),
+                "expected_return_date": datetime.date.today()
+                + datetime.timedelta(days=1),
+                "book": self.book.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_authenticated_user_can_return_borrowing(self):
+        self.authenticate_user()
+
+        borrowing = Borrowing.objects.create(
+            user=self.user,
+            book=self.book,
+            borrow_date=datetime.date.today(),
+            expected_return_date=datetime.date.today()
+            + datetime.timedelta(days=1),
+        )
+
+        initial_inventory = self.book.inventory
+
+        response = self.client.post(return_url(borrowing.id))
+
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+        borrowing.refresh_from_db()
+        self.book.refresh_from_db()
+
+        self.assertEqual(
+            borrowing.actual_return_date,
+            datetime.date.today(),
+        )
+        self.assertEqual(
+            self.book.inventory,
+            initial_inventory + 1,
+        )
+
+    def test_cannot_return_borrowing_twice(self):
+        self.authenticate_user()
+
+        borrowing = Borrowing.objects.create(
+            user=self.user,
+            book=self.book,
+            borrow_date=datetime.date.today(),
+            expected_return_date=datetime.date.today()
+            + datetime.timedelta(days=1),
+            actual_return_date=datetime.date.today(),
+        )
+
+        initial_inventory = self.book.inventory
+
+        response = self.client.post(return_url(borrowing.id))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        self.book.refresh_from_db()
+
+        self.assertEqual(
+            self.book.inventory,
+            initial_inventory,
+        )

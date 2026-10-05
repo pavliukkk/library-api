@@ -1,10 +1,15 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from book.models import Book
 from book.serializers import BookListSerializer
 from borrowing.models import Borrowing
 from user.serializers import UserSerializer
+
+
+class EmptySerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ()
+        model = Borrowing
 
 
 class BorrowingSerializer(serializers.ModelSerializer):

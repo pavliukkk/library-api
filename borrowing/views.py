@@ -34,7 +34,6 @@ class BorrowingViewSet(
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()
 
-
         if borrowing.actual_return_date is not None:
             raise serializers.ValidationError(
                 {"actual_return_date": "Borrowing is already returned."}

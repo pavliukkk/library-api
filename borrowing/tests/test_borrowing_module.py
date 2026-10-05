@@ -69,12 +69,12 @@ class BorrowingViewSetTests(BaseViewSetTest):
     def test_anonymous_user_can_list_borrowings(self):
         response = self.client.get(BORROWING_URL)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_anonymous_user_can_retrieve_borrowings(self):
         response = self.client.get(detail_url(BORROWING_URL, self.borrowing.id))
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_anonymous_user_cannot_create_borrowings(self):
         response = self.client.post(

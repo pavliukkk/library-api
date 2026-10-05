@@ -1,4 +1,9 @@
-from rest_framework import viewsets, mixins
+import datetime
+
+from django.db import transaction
+from django.shortcuts import redirect
+from rest_framework import viewsets, mixins, serializers
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
 from borrowing.models import Borrowing
@@ -7,6 +12,7 @@ from borrowing.serializers import (
     BorrowingListSerializer,
     BorrowingDetailSerializer,
     BorrowingCreateSerializer,
+    EmptySerializer,
 )
 
 
@@ -20,6 +26,28 @@ class BorrowingViewSet(
     serializer_class = BorrowingSerializer
     permission_classes = [IsAuthenticated]
 
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="return",
+    )
+    def return_borrowing(self, request, pk=None):
+        borrowing = self.get_object()
+
+        if borrowing.actual_return_date is not None:
+            raise serializers.ValidationError(
+                {"actual_return_date": "Borrowing is already returned."}
+            )
+
+        with transaction.atomic():
+            borrowing.actual_return_date = datetime.date.today()
+            borrowing.save(update_fields=["actual_return_date"])
+
+            borrowing.book.inventory += 1
+            borrowing.book.save(update_fields=["inventory"])
+
+        return redirect("borrowing:borrowing-list")
+
     def get_serializer_class(self):
         if self.action == "list":
             return BorrowingListSerializer
@@ -27,4 +55,6 @@ class BorrowingViewSet(
             return BorrowingDetailSerializer
         elif self.action == "create":
             return BorrowingCreateSerializer
+        elif self.action == "return_borrowing":
+            return EmptySerializer
         return BorrowingSerializer

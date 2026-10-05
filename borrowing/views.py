@@ -1,12 +1,10 @@
 import datetime
-from datetime import timezone
 
 from django.db import transaction
 from django.shortcuts import redirect
-from rest_framework import viewsets, mixins, serializers, status, renderers
+from rest_framework import viewsets, mixins, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 from borrowing.models import Borrowing
 from borrowing.serializers import (
@@ -16,6 +14,7 @@ from borrowing.serializers import (
     BorrowingCreateSerializer,
     EmptySerializer,
 )
+
 
 class BorrowingViewSet(
     viewsets.GenericViewSet,

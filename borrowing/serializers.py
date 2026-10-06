@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from book.serializers import BookListSerializer
 from borrowing.models import Borrowing
+from notifications.helper import send_message
 from user.serializers import UserSerializer
 
 
@@ -91,6 +92,9 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
 
         book.inventory -= 1
         book.save(update_fields=("inventory",))
+
+        message = f'Book "{book.title}" has been borrowed by {user.email}'
+        send_message(message)
 
         return Borrowing.objects.create(
             user=user,

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "user",
     "rest_framework_simplejwt",
     "borrowing",
+    "django_q",
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,13 @@ SIMPLE_JWT = {
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+Q_CLUSTER = {
+    "name": "library_service",
+    "workers": 1,
+    "timeout": 90,
+    "retry": 120,
+    "queue_limit": 50,
+    "bulk": 10,
+    "orm": "default",
+}

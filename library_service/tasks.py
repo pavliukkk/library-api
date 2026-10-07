@@ -17,7 +17,7 @@ def check_overdue_borrowings():
             )
             send_message(message)
     else:
-        send_message("No overdue borrowings")
+        send_message("No borrowings overdue today!")
 
 
 schedule(

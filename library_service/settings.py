@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "user",
     "rest_framework_simplejwt",
     "borrowing",
+    "django_q",
 ]
 
 MIDDLEWARE = [

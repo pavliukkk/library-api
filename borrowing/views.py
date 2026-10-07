@@ -2,6 +2,7 @@ import datetime
 
 from django.db import transaction
 from django.shortcuts import redirect
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets, mixins, serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +17,27 @@ from borrowing.serializers import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        summary="List borrowings",
+        description="Returns a list of borrowings belonging to the authenticated user.",
+        responses=BorrowingListSerializer(many=True),
+    ),
+    retrieve=extend_schema(
+        summary="Retrieve a borrowing",
+        description="Returns detailed information about a borrowing.",
+        responses=BorrowingDetailSerializer,
+    ),
+    create=extend_schema(
+        summary="Create a borrowing",
+        description=(
+            "Creates a new borrowing for the authenticated user. "
+            "The book inventory is decreased by one."
+        ),
+        request=BorrowingCreateSerializer,
+        responses=BorrowingCreateSerializer,
+    ),
+)
 class BorrowingViewSet(
     viewsets.GenericViewSet,
     mixins.ListModelMixin,
@@ -26,6 +48,16 @@ class BorrowingViewSet(
     serializer_class = BorrowingSerializer
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Return a borrowing",
+        description=(
+            "Returns a borrowed book. "
+            "The book inventory is increased by one. "
+            "A borrowing cannot be returned more than once."
+        ),
+        request=EmptySerializer,
+        responses=BorrowingDetailSerializer,
+    )
     @action(
         detail=True,
         methods=["post"],
@@ -36,7 +68,11 @@ class BorrowingViewSet(
 
         if borrowing.actual_return_date is not None:
             raise serializers.ValidationError(
-                {"actual_return_date": "Borrowing is already returned."}
+                {
+                    "actual_return_date": (
+                        "Borrowing is already returned."
+                    )
+                }
             )
 
         with transaction.atomic():

@@ -1,0 +1,41 @@
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    command:
+      sh -c "python manage.py wait_for_db && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    networks:
+      - library-network
+
+  qcluster:
+    build: .
+    command:
+      - python manage.py qcluster
+    volumes:
+      - .:/app
+    networks:
+      - library-network
+
+  db:
+    image: postgres:18-alpine
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - my_db:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - library-network
+
+volumes:
+  my_db:
+networks:
+  library-network:
